@@ -159,11 +159,25 @@ const connect = async (port) => {
                     finishDistance = parsed.finishDistance;
                     presenceDistance = parsed.presenceDistance;
                     armDistance = parsed.armDistance;
+                    playerIs = parsed.playerIs;
 
                     $distanceOutput.innerHTML = `
-                    Finish Distance: ${finishDistance} cm<br>
-                    Presence Distance: ${presenceDistance} cm<br>
-                    Arm Distance: ${armDistance} cm`;  
+                        Finish Distance: ${finishDistance} cm<br>
+                        Presence Distance: ${presenceDistance} cm<br>
+                        Arm Distance: ${armDistance} cm<br>
+                        Player is: ${playerIs}<br>
+                    `;
+
+                    if (finishDistance < minimumDistanceFinish) {
+                        console.log("Game Over");
+                        playerIs = false;
+                        // send here player false to the arduino
+                        await writer.write(
+                            JSON.stringify({
+                                playerIs: playerIs
+                            })
+                        );
+                    };
 
 
 
