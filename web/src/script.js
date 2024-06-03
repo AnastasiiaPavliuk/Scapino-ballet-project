@@ -9,9 +9,15 @@ const $connected = document.getElementById("connected");
 const $connectButton = document.getElementById("connectButton");
 const $startButton = document.querySelector(".start-button");
 const $responseElement = document.querySelector(".response");
+const $distanceOutput = document.querySelector(".distance-output");
+
+const minimumDistanceFinish = 13;
 
 
 let playerIs = false;
+let finishDistance;
+let presenceDistance;
+let armDistance;
 // let playerId = 0;
 
 const arduinoInfo = {
@@ -142,13 +148,40 @@ const connect = async (port) => {
                     break;
                 }
                 //Do something with |value|…
-                setInterval(() => {
-                    console.log("received or read: ", value);
-                }, 2000);
+                // setInterval(() => {
+                //     console.log("received or read: ", value);
+                // }, 2000);
 
                 try {
                     const parsed = JSON.parse(value);
                     console.log("parsed", parsed);
+
+                    finishDistance = parsed.finishDistance;
+                    presenceDistance = parsed.presenceDistance;
+                    armDistance = parsed.armDistance;
+                    playerIs = parsed.playerIs;
+
+                    $distanceOutput.innerHTML = `
+                        Finish Distance: ${finishDistance} cm<br>
+                        Presence Distance: ${presenceDistance} cm<br>
+                        Arm Distance: ${armDistance} cm<br>
+                        Player is: ${playerIs}<br>
+                    `;
+
+                    if (finishDistance < minimumDistanceFinish) {
+                        console.log("Game Over");
+                        playerIs = false;
+                        // send here player false to the arduino
+                        await writer.write(
+                            JSON.stringify({
+                                playerIs: playerIs
+                            })
+                        );
+                    };
+
+
+
+
                     // playerIs = parsed.playerIs;
                     // console.log("playerIs", playerIs);
                     // playerBoolean();
@@ -190,6 +223,8 @@ const displayConnectionState = () => {
         $connected.style.display = "none";
     }
 };
+
+
 
 const playerBoolean = () => {
     if (playerIs) {
