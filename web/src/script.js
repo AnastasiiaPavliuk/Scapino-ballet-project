@@ -141,10 +141,10 @@ const connect = async (port) => {
                     // |reader| has been canceled.
                     break;
                 }
-                // Do something with |value|…
-                // setInterval(() => {
-                //     console.log("received or read: ", value);
-                // }, 2000);
+                //Do something with |value|…
+                setInterval(() => {
+                    console.log("received or read: ", value);
+                }, 2000);
 
                 try {
                     const parsed = JSON.parse(value);

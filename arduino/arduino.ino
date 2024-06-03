@@ -40,14 +40,40 @@ void loop() {
   presenceDistance = measureDistance(presenceTrigPin, presenceEchoPin);
   finishDistance = measureDistance(finishTrigPin, finishEchoPin);
 
+ 
+
+
+    Serial.print("Arm Distance: ");
+  Serial.println(armDistance);
+  
+  Serial.print("Presence Distance: ");
+  Serial.println(presenceDistance);
+  
+  Serial.print("Finish Distance: ");
+  Serial.println(finishDistance);
+
+  Serial.print("playerIs: ");
+  Serial.println(playerIs);
+
+
+
+    if (finishDistance < minimalDistance) {
+      Serial.print("finishDistance in if st: ");
+      Serial.println(finishDistance);
+      Serial.print("minimalDistance in if st : ");
+      Serial.println(minimalDistance);
+      playerIs = false;
+    }
+
     DynamicJsonDocument doc(256);
+
+      doc["playerIs"] = playerIs;
 
       if (playerIs) {
       // DynamicJsonDocument doc(256);
       doc["armDistance"] = armDistance;
       doc["presenceDistance"] = presenceDistance;
       doc["finishDistance"] = finishDistance;
-      doc["playerIs"] = playerIs;
       serializeJson(doc, Serial);
       Serial.println();
 
@@ -69,15 +95,6 @@ void loop() {
       return;
     }
 
-    playerIs = doc["playerIs"];
-
-    if (finishDistance < minimalDistance) {
-      Serial.print("finishDistance: ");
-      Serial.println(finishDistance);
-      Serial.print("minimalDistance: ");
-      Serial.println(minimalDistance);
-      playerIs = false;
-    }
   }
 }
 
@@ -103,13 +120,13 @@ void checkFinishSensor() {
 }
 
 void handleDistance(float distance) {
-  if (distance < 10) {
-    digitalWrite(led_1, HIGH);
-    digitalWrite(led_2, HIGH);
-  } else {
-    digitalWrite(led_1, LOW);
-    digitalWrite(led_2, LOW);
-  }
+  // if (distance < 10) {
+  //   digitalWrite(led_1, HIGH);
+  //   digitalWrite(led_2, HIGH);
+  // } else {
+  //   digitalWrite(led_1, LOW);
+  //   digitalWrite(led_2, LOW);
+  // }
 
   if (distance < 3) {
     tooClose(distance);
