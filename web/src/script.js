@@ -18,7 +18,9 @@ let playerIs = false;
 let finishDistance;
 let presenceDistance;
 let armDistance;
-// let playerId = 0;
+let playerId = 1;
+
+const players = [];
 
 const arduinoInfo = {
     usbProductId: 32823,
@@ -130,8 +132,16 @@ const connect = async (port) => {
         const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
         const writer = textEncoder.writable.getWriter();
 
+        //sends at hte beginning player is false FINALLY
+        await writer.write(
+            JSON.stringify({
+                playerIs: playerIs
+            })
+        );
+
         $startButton.addEventListener("click", async () => {
             playerIs = true;
+            addPlayerObject();
             console.log("Start game", playerIs);
             await writer.write(
                 JSON.stringify({
@@ -139,6 +149,7 @@ const connect = async (port) => {
                 })
             );
             await writer.write("\n");
+
         });
         try {
             while (true) {
@@ -159,7 +170,7 @@ const connect = async (port) => {
                     finishDistance = parsed.finishDistance;
                     presenceDistance = parsed.presenceDistance;
                     armDistance = parsed.armDistance;
-                    playerIs = parsed.playerIs;
+                    //playerIs = parsed.playerIs;
 
                     $distanceOutput.innerHTML = `
                         Finish Distance: ${finishDistance} cm<br>
@@ -175,12 +186,10 @@ const connect = async (port) => {
                         await writer.write(
                             JSON.stringify({
                                 playerIs: playerIs
+                                
                             })
                         );
                     };
-
-
-
 
                     // playerIs = parsed.playerIs;
                     // console.log("playerIs", playerIs);
@@ -200,6 +209,7 @@ const connect = async (port) => {
 
     port.addEventListener("disconnect", () => {
         isConnected = false;
+        console.log("Disconnected");
         displayConnectionState();
     });
 };
@@ -224,12 +234,37 @@ const displayConnectionState = () => {
     }
 };
 
+//create object with id and score 
+
+
+
+const addPlayerObject = () => {
+
+    
+    const playerObject = {
+        id: playerId++,
+        score: 0
+    }
+
+    $responseElement.innerHTML = `
+        <p>ID: ${playerObject.id}</p>
+        <p>Score: ${playerObject.score}</p>
+    `;
+
+    players.push(playerObject);
+
+    return playerObject; 
+}
+
+
+
 
 
 const playerBoolean = () => {
     if (playerIs) {
         $responseElement.classList.remove('player-inactive');
         $responseElement.classList.add('player-active');
+        
     } else {
         $responseElement.classList.remove('player-active');
         $responseElement.classList.add('player-inactive');
