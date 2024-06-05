@@ -1,4 +1,3 @@
-# Rotrijk
-Integration 4 Devine &amp; CMS 
+Integration 4 Devine & CMS
 
 Team members: Isa, Esterre, Sam, Anastasiia and Justin
