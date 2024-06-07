@@ -17,3 +17,10 @@ body {
 .player-inactive {
   background-color: red;
 }
+
+.develop{
+  padding: 1rem;
+  margin: 1rem 0;
+  background-color: rgb(218, 218, 218);
+  border: 1px grey dashed;
+}
