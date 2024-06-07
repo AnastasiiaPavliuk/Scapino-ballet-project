@@ -1,69 +1,56 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('node:path');
+const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const path = require('path');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
+let win1, win2;
 
-const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
+function createWindows() {
+  const displays = screen.getAllDisplays();
+  if (displays.length < 2) {
+    console.log('Need at least two monitors');
+    app.quit();
+    return;
+  }
+
+  // Create first window on the first display
+  win1 = new BrowserWindow({
+    x: displays[0].bounds.x + 50,
+    y: displays[0].bounds.y + 50,
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-
-  const handleSelectSerialPort = (event, portList, webContents, callback) => {
-    console.log('select-serial-port FIRED WITH', portList);
-
-    event.preventDefault()
-    const arduino = portList.find(port => port.displayName && port.displayName.toLowerCase().includes('arduino'))
-    if (arduino) {
-      callback(arduino.portId)
-    } else {
-      callback('') //Could not find any matching devices
-    }
-  };
-
-  mainWindow.webContents.session.on('select-serial-port', handleSelectSerialPort);
-
-  mainWindow.on('close', () => {
-    mainWindow.webContents.session.removeListener('select-serial-port', handleSelectSerialPort);
-  });
-
-  // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-};
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  createWindow();
-
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      preload: path.join(__dirname, 'preload.js')
     }
   });
-});
+  win1.loadFile('src/index.html');
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+  // Create second window on the second display
+  win2 = new BrowserWindow({
+    x: displays[1].bounds.x + 50,
+    y: displays[1].bounds.y + 50,
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+  win2.loadFile('src/finish.html');
+}
+
+app.whenReady().then(createWindows);
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindows();
+  }
+});
+
+// Handle communication between windows
+ipcMain.on('finish-from-win1', (event) => {
+  win2.webContents.send('display-finish', 'finished');
+});

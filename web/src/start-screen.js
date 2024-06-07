@@ -236,6 +236,12 @@ const displayConnectionState = () => {
 
 //create object with id and score 
 
+function finish() {
+    window.electronAPI.send('finish-from-win1');
+}
+
+// Add a button to trigger the finish function for demonstration purposes
+document.getElementById('finishButton').addEventListener('click', finish);
 
 
 const addPlayerObject = () => {
