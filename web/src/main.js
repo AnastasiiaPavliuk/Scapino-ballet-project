@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen } = require('electron');
+const { app, BrowserWindow, screen, ipcMain } = require('electron');
 const path = require('path');
 
 let win1, win2;
@@ -55,6 +55,17 @@ function createWindows() {
   win2.loadFile('src/finish.html');
   win2.webContents.openDevTools();
 
+  
+  console.log('win1', win1.webContents.id);
+
+  ipcMain.on('finish', (event, ...args) => {
+    // win2.webContent.send('finish', args);
+    console.log('Received message:', args);
+    console.log('finish event ');
+    // win2.console.log('finish event ');
+  });
+
+
 }
 
 app.whenReady().then(createWindows);
@@ -70,4 +81,5 @@ app.on('activate', () => {
     createWindows();
   }
 });
+
 

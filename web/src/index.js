@@ -1,5 +1,7 @@
 
 const hasWebSerial = "serial" in navigator;
+//import * as path from 'path'; 
+// import { ipcRenderer as ipc } from '../node_modules/@electron';
 let isConnected = false;
 
 const $notSupported = document.getElementById("not-supported");
@@ -233,14 +235,13 @@ const displayConnectionState = () => {
 
 const handleFinishGame = () => {
 
-    const data = {
-        finishDistance,
-        presenceDistance,
-        armDistance,
-        playerIs
+    const message = {
+        finishDistance: 3,
     };
 
-    console.log("Game Over, DATA: ", data);
+    console.log("Game Over, DATA: ", message);
+
+    window.electronAPI.send('finish', message);
     // electronAPI.send('finish-from-win1', data);   
 };
 
