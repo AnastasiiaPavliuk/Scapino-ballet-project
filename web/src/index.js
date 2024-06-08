@@ -241,7 +241,7 @@ const handleFinishGame = () => {
     };
 
     console.log("Game Over, DATA: ", data);
-    electronAPI.send('finish-from-win1', data);   
+    // electronAPI.send('finish-from-win1', data);   
 };
 
 
