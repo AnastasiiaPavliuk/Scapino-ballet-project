@@ -59,12 +59,10 @@ function createWindows() {
   console.log('win1', win1.webContents.id);
 
   ipcMain.on('finish', (event, ...args) => {
-    // win2.webContent.send('finish', args);
+    win2.webContents.send('finish', args);
     console.log('Received message:', args);
-    console.log('finish event ');
     // win2.console.log('finish event ');
   });
-
 
 }
 
