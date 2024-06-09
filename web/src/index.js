@@ -23,6 +23,7 @@ let finishDistance;
 let presenceDistance;
 let armDistance;
 let playerId = 1;
+let startTime;
 
 const players = [];
 
@@ -83,10 +84,7 @@ const init = async () => {
     $finishButton.addEventListener("click", handleFinishGame);
 };
 
-const handleStartGame = () => {
-    console.log("Start game");
 
-};
 
 const isArduinoPort = (port) => {
     const info = port.getInfo();
@@ -148,7 +146,7 @@ const connect = async (port) => {
         $startButton.addEventListener("click", async () => {
             playerIs = true;
             addPlayerObject();
-            console.log("Start game", playerIs);
+            handleStartGame();
             await writer.write(
                 JSON.stringify({
                     playerIs: playerIs
@@ -166,19 +164,7 @@ const connect = async (port) => {
                 }
 
                 try {
-                    const parsed = JSON.parse(value);
-                    console.log("parsed", parsed);
-
-                    finishDistance = parsed.finishDistance;
-                    presenceDistance = parsed.presenceDistance;
-                    armDistance = parsed.armDistance;
-
-                    $distanceOutput.innerHTML = `
-                        Finish Distance: ${finishDistance} cm<br>
-                        Presence Distance: ${presenceDistance} cm<br>
-                        Arm Distance: ${armDistance} cm<br>
-                        Player is: ${playerIs}<br>
-                    `;
+                    parseAndDisplayValues(value);
 
                     if (finishDistance < minimumDistanceFinish) {
                         playerIs = false;
@@ -231,23 +217,49 @@ const displayConnectionState = () => {
     }
 };
 
+const handleStartGame = () => {
+    console.log("Start game", playerIs);
+    startTime = new Date();
+};
+
+
+
+let minimumArmDistance = 15;
+
+
+const accuracy = [];
+const playerMinMax = [];
 
 
 const handleFinishGame = () => {
 
-    const message = {
-        finishDistance: 3,
-    };
+    if (!startTime) {
+        console.error('The game has not been started.');
+    }
 
+    //FOR SOME REASON IT SENDS THE DATA TWICE
+
+    playerMinMax.push(Math.min(...accuracy));
+    playerMinMax.push(Math.max(...accuracy));
+
+    const endTime = new Date(); // Record the end time
+    const elapsedTime = (endTime - startTime) / 1000;
+
+    const message = {
+        playerMinMax: playerMinMax,
+        // finishDistance: finishDistance, 
+        // presenceDistance: presenceDistance, 
+        //armDistance: armDistance,
+        playerTime: elapsedTime
+    };
     console.log("Game Over, DATA: ", message);
 
     window.electronAPI.send('finish', message);
-    // electronAPI.send('finish-from-win1', data);   
+    //electronAPI.send('finish-from-win1', data);   
 };
 
-
 const addPlayerObject = () => {
-    
+
     const playerObject = {
         id: playerId++,
         score: 0
@@ -260,12 +272,8 @@ const addPlayerObject = () => {
 
     players.push(playerObject);
 
-    return playerObject; 
-}
-
-
-
-
+    return playerObject;
+};
 
 const playerBoolean = () => {
     if (playerIs) {
@@ -279,8 +287,32 @@ const playerBoolean = () => {
         $startButton.disabled = false;
 
     }
+};
+
+const parseAndDisplayValues = (value) => {
+
+    const parsed = JSON.parse(value);
+    //console.log("parsed", parsed);
+
+    finishDistance = parsed.finishDistance;
+    presenceDistance = parsed.presenceDistance;
+    armDistance = parsed.armDistance;
+
+    if (armDistance < minimumArmDistance) {
+        //console.log( "new arm distance", armDistance);
+        minimumArmDistance = armDistance;
+        accuracy.push(armDistance);
+        console.log("Accuracy", accuracy);
+    };
+
+    $distanceOutput.innerHTML = `
+        Finish Distance: ${finishDistance} cm<br>
+        Presence Distance: ${presenceDistance} cm<br>
+        Arm Distance: ${armDistance} cm<br>
+        Player is: ${playerIs}<br>
+    `;
 }
 
-
 init();
+
 

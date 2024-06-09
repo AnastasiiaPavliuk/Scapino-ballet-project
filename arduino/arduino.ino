@@ -1,8 +1,8 @@
+
 #include <ArduinoJson.h>
 #include <ArduinoJson.hpp>
 
 #define led_1 8
-#define led_2 9
 #define buzzer 10
 
 #define armTrigPin 2
@@ -16,12 +16,13 @@
 
 float armDistance, presenceDistance, finishDistance;
 bool playerIs = false;
-// int minimalDistance = 13;
+
+int presenceDistanceNum = 13;
+int armDistanceNum = 13;
 
 void setup() {
   Serial.begin(9600);
   pinMode(led_1, OUTPUT);
-  pinMode(led_2, OUTPUT);
   pinMode(buzzer, OUTPUT);
   pinMode(armTrigPin, OUTPUT);
   pinMode(armEchoPin, INPUT);
@@ -32,33 +33,22 @@ void setup() {
 }
 
 void loop() {
-
   delay(50);
 
   armDistance = measureDistance(armTrigPin, armEchoPin);
   presenceDistance = measureDistance(presenceTrigPin, presenceEchoPin);
   finishDistance = measureDistance(finishTrigPin, finishEchoPin);
 
+  if (playerIs) {
     DynamicJsonDocument doc(256);
-
-      if (playerIs) {
-
-      doc["armDistance"] = armDistance;
-      doc["presenceDistance"] = presenceDistance;
-      doc["finishDistance"] = finishDistance;
-      // doc["playerIs"] = playerIs;
-      serializeJson(doc, Serial);
-      Serial.println();
-
-      digitalWrite(led_1, HIGH);
-      digitalWrite(led_2, HIGH);
-    } else {
-      digitalWrite(led_1, LOW);
-      digitalWrite(led_2, LOW);
-    }
+    doc["armDistance"] = armDistance;
+    doc["presenceDistance"] = presenceDistance;
+    doc["finishDistance"] = finishDistance;
+    serializeJson(doc, Serial);
+    Serial.println();
+  }
 
   if (Serial.available() > 0) {
-    //read data
     String s = Serial.readStringUntil('\n');
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, s);
@@ -67,11 +57,20 @@ void loop() {
       logSerial("json parse failed");
       return;
     }
- 
+
     if (doc.containsKey("playerIs")) {
-      //receive that player is true
       playerIs = doc["playerIs"].as<bool>();
     }
+  }
+
+  checkPlayerInTheFrame(presenceDistance, armDistance);
+}
+
+void checkPlayerInTheFrame(float presenceDistance, float armDistance) {
+  if (presenceDistance < presenceDistanceNum || armDistance < armDistanceNum) {
+    digitalWrite(led_1, HIGH);
+  } else {
+    digitalWrite(led_1, LOW);
   }
 }
 
@@ -93,7 +92,6 @@ void logSerial(const char* message) {
   serializeJson(doc, Serial);
   Serial.println();
 }
-
 
 void tooClose(float distance) {
   tone(buzzer, 100);
