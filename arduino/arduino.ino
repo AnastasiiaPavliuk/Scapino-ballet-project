@@ -3,6 +3,9 @@
 #include <ArduinoJson.hpp>
 
 #define led_1 8
+#define led_2 7
+#define SHOCK_PIN 9
+
 #define buzzer 10
 
 #define armTrigPin 2
@@ -18,11 +21,16 @@ float armDistance, presenceDistance, finishDistance;
 bool playerIs = false;
 
 int presenceDistanceNum = 13;
-int armDistanceNum = 13;
+int armDistanceNum = 16;
+int armDistanceMin = 10;
+int armDistanceMax = 12;
+int shockOutput;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(SHOCK_PIN, INPUT);  
   pinMode(led_1, OUTPUT);
+  pinMode(led_2, OUTPUT);
   pinMode(buzzer, OUTPUT);
   pinMode(armTrigPin, OUTPUT);
   pinMode(armEchoPin, INPUT);
@@ -33,7 +41,7 @@ void setup() {
 }
 
 void loop() {
-  delay(50);
+  //delay(50);
 
   armDistance = measureDistance(armTrigPin, armEchoPin);
   presenceDistance = measureDistance(presenceTrigPin, presenceEchoPin);
@@ -44,6 +52,7 @@ void loop() {
     doc["armDistance"] = armDistance;
     doc["presenceDistance"] = presenceDistance;
     doc["finishDistance"] = finishDistance;
+    doc["shockOutput"] = digitalRead(SHOCK_PIN);
     serializeJson(doc, Serial);
     Serial.println();
   }
@@ -67,11 +76,23 @@ void loop() {
 }
 
 void checkPlayerInTheFrame(float presenceDistance, float armDistance) {
+  //if distance less than 15
   if (presenceDistance < presenceDistanceNum || armDistance < armDistanceNum) {
-    digitalWrite(led_1, HIGH);
-  } else {
-    digitalWrite(led_1, LOW);
-  }
+
+    //if player is persize
+      if ((armDistance <= armDistanceMin )&&(armDistance <= armDistanceMin )){
+      digitalWrite(led_1, LOW);
+      digitalWrite(led_2, HIGH);
+    } else {
+      digitalWrite(led_2, LOW);
+      digitalWrite(led_1, HIGH);
+    }
+   } 
+   //else {
+  //   digitalWrite(led_1, LOW);
+  //   digitalWrite(led_2, LOW);
+  // }
+  
 }
 
 float measureDistance(int trigPin, int echoPin) {

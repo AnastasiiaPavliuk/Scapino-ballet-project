@@ -10,14 +10,6 @@ body {
   margin: 1rem;
 }
 
-.player-active {
-  background-color: green;
-}
-
-.player-inactive {
-  background-color: red;
-}
-
 .develop{
   padding: 1rem;
   margin: 1rem 0;
