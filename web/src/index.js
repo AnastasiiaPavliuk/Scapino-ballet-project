@@ -1,5 +1,7 @@
 
 const hasWebSerial = "serial" in navigator;
+//import * as path from 'path'; 
+// import { ipcRenderer as ipc } from '../node_modules/@electron';
 let isConnected = false;
 
 const $notSupported = document.getElementById("not-supported");
@@ -20,20 +22,18 @@ let playerIs = false;
 let finishDistance;
 let presenceDistance;
 let armDistance;
+let shock;
 let playerId = 1;
+let startTime;
 
 const players = [];
-
-const arduinoInfo = {
-    usbProductId: 32823,
-    usbVendorId: 9025,
-};
 
 let connectedArduinoPorts = [];
 
 const init = async () => {
     displaySupportedState();
     if (!hasWebSerial) return;
+
     displayConnectionState();
     navigator.serial.addEventListener("connect", (e) => {
         const port = e.target;
@@ -53,44 +53,16 @@ const init = async () => {
         console.log("disconnect", port, info);
         connectedArduinoPorts = connectedArduinoPorts.filter((p) => p !== port);
     });
-
-    const ports = await navigator.serial.getPorts();
-    connectedArduinoPorts = ports.filter(isArduinoPort);
-
-    console.log("Ports");
-    ports.forEach((port) => {
-        const info = port.getInfo();
-        console.log(info);
-    });
-    console.log("Connected Arduino ports");
-    connectedArduinoPorts.forEach((port) => {
-        const info = port.getInfo();
-        console.log(info);
-    });
-
-    if (connectedArduinoPorts.length > 0) {
-        connect(connectedArduinoPorts[0]);
-    }
-
     $connectButton.addEventListener("click", handleClickConnect);
-    // write function to check every second if the playerIs true
-    setInterval(() => {
-        playerBoolean();
-    }, 1000);
-
     $finishButton.addEventListener("click", handleFinishGame);
 };
 
-const handleStartGame = () => {
-    console.log("Start game");
-
-};
 
 const isArduinoPort = (port) => {
     const info = port.getInfo();
     return (
-        info.usbProductId === arduinoInfo.usbProductId &&
-        info.usbVendorId === arduinoInfo.usbVendorId
+        info.usbProductId === 32823 &&
+        info.usbVendorId === 9025
     );
 };
 
@@ -107,10 +79,8 @@ const connect = async (port) => {
     isConnected = true;
     displayConnectionState();
     await port.open({ baudRate: 9600 });
-
     while (port.readable) {
         const decoder = new TextDecoderStream();
-
         const lineBreakTransformer = new TransformStream({
             transform(chunk, controller) {
                 const text = chunk;
@@ -136,6 +106,7 @@ const connect = async (port) => {
         const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
         const writer = textEncoder.writable.getWriter();
 
+
         //sends at hte beginning player is false FINALLY
         await writer.write(
             JSON.stringify({
@@ -143,18 +114,44 @@ const connect = async (port) => {
             })
         );
 
-        $startButton.addEventListener("click", async () => {
+        const handleArduinoData = (parsed) => {
+            //console.log(parsed);
+            finishDistance = parsed.finishDistance;
+            presenceDistance = parsed.presenceDistance;
+            armDistance = parsed.armDistance;
+            shock = parsed.shockOutput;
+
+            if (armDistance < minimumArmDistance) {
+                //console.log( "new arm distance", armDistance);
+                minimumArmDistance = armDistance;
+                accuracy.push(armDistance);
+                console.log("Accuracy", accuracy);
+            };
+
+            $distanceOutput.innerHTML = `
+        Finish Distance: ${finishDistance} cm<br>
+        Presence Distance: ${presenceDistance} cm<br>
+        Arm Distance: ${armDistance} cm<br>
+        Player is: ${playerIs}<br>
+        Shock: ${shock} 
+    `;
+        }
+
+        const handleStartGame = async () => {
             playerIs = true;
             addPlayerObject();
             console.log("Start game", playerIs);
+            startTime = new Date();
             await writer.write(
                 JSON.stringify({
                     playerIs: playerIs
                 })
             );
             await writer.write("\n");
+        };
 
-        });
+        $startButton.addEventListener("click", handleStartGame);
+        
         try {
             while (true) {
                 const { value, done } = await reader.read();
@@ -162,32 +159,24 @@ const connect = async (port) => {
                     // |reader| has been canceled.
                     break;
                 }
-
                 try {
                     const parsed = JSON.parse(value);
-                    console.log("parsed", parsed);
-
+                    console.log(parsed); //slow
+                    handleArduinoData(parsed);
                     finishDistance = parsed.finishDistance;
                     presenceDistance = parsed.presenceDistance;
                     armDistance = parsed.armDistance;
+                    shock = parsed.shockOutput;
 
-                    $distanceOutput.innerHTML = `
-                        Finish Distance: ${finishDistance} cm<br>
-                        Presence Distance: ${presenceDistance} cm<br>
-                        Arm Distance: ${armDistance} cm<br>
-                        Player is: ${playerIs}<br>
-                    `;
-
-                    if (finishDistance < minimumDistanceFinish) {
+                     if (finishDistance < minimumDistanceFinish) {
                         playerIs = false;
-                        // send here player false to the arduino
                         await writer.write(
                             JSON.stringify({
                                 playerIs: playerIs
                             })
                         );
                         handleFinishGame();
-                        //console.log("Finish game");
+                        console.log("Finish game");
                     };
                 } catch (error) {
                     console.log(error);
@@ -198,7 +187,7 @@ const connect = async (port) => {
         } finally {
             reader.releaseLock();
             writer.releaseLock();
-            clearInterval(intervalId);
+            //clearInterval(intervalId);
         }
     }
 
@@ -207,7 +196,15 @@ const connect = async (port) => {
         console.log("Disconnected");
         displayConnectionState();
     });
+
 };
+
+const checkFinishSensor = (finishDistance, minimumDistanceFinish) => {
+    if (finishDistance < minimumDistanceFinish) {
+        handleFinishGame();
+        console.log("Finish game");
+        return false;
+    } };
 
 const displaySupportedState = () => {
     if (hasWebSerial) {
@@ -231,22 +228,43 @@ const displayConnectionState = () => {
 
 
 
+
+let minimumArmDistance = 15;
+
+
+const accuracy = [];
+const playerMinMax = [];
+
+
 const handleFinishGame = () => {
 
-    const data = {
-        finishDistance,
-        presenceDistance,
-        armDistance,
-        playerIs
-    };
+    if (!startTime) {
+        console.error('The game has not been started.');
+    }
 
-    console.log("Game Over, DATA: ", data);
-    electronAPI.send('finish-from-win1', data);   
+    //FOR SOME REASON IT SENDS THE DATA TWICE
+
+    playerMinMax.push(Math.min(...accuracy));
+    playerMinMax.push(Math.max(...accuracy));
+
+    const endTime = new Date(); // Record the end time
+    const elapsedTime = (endTime - startTime) / 1000;
+
+    const message = {
+        playerMinMax: playerMinMax,
+        // finishDistance: finishDistance, 
+        // presenceDistance: presenceDistance, 
+        //armDistance: armDistance,
+        playerTime: elapsedTime
+    };
+    console.log("Game Over, DATA: ", message);
+
+    window.electronAPI.send('finish', message);
+    //electronAPI.send('finish-from-win1', data);   
 };
 
-
 const addPlayerObject = () => {
-    
+
     const playerObject = {
         id: playerId++,
         score: 0
@@ -259,27 +277,11 @@ const addPlayerObject = () => {
 
     players.push(playerObject);
 
-    return playerObject; 
-}
+    return playerObject;
+};
 
-
-
-
-
-const playerBoolean = () => {
-    if (playerIs) {
-        $responseElement.classList.remove('player-inactive');
-        $responseElement.classList.add('player-active');
-        $startButton // make button active
-        $startButton.disabled = true;
-    } else {
-        $responseElement.classList.remove('player-active');
-        $responseElement.classList.add('player-inactive');
-        $startButton.disabled = false;
-
-    }
-}
 
 
 init();
+
 

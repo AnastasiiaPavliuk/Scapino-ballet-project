@@ -1,20 +1,19 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, screen, ipcMain } = require('electron');
 const path = require('path');
 
 let win1, win2;
 
 function createWindows() {
-  const displays = screen.getAllDisplays();
-  if (displays.length < 2) {
-    console.log('Need at least two monitors');
-    app.quit();
-    return;
-  }
+   //const displays = screen.getAllDisplays();
+  // if (displays.length < 2) {
+  //   console.log('Need at least two monitors');
+  //   app.quit();
+  //   return;
+  // }
 
-  // Create first window on the first display
   win1 = new BrowserWindow({
-    x: displays[0].bounds.x + 50,
-    y: displays[0].bounds.y + 50,
+    x: 500,
+    y: 600,
     width: 800,
     height: 600,
     webPreferences: {
@@ -45,8 +44,8 @@ function createWindows() {
 
   // Create second window on the second display
   win2 = new BrowserWindow({
-    x: displays[1].bounds.x + 50,
-    y: displays[1].bounds.y + 50,
+    x: 500,
+    y: 800,
     width: 800,
     height: 600,
     webPreferences: {
@@ -55,6 +54,15 @@ function createWindows() {
   });
   win2.loadFile('src/finish.html');
   win2.webContents.openDevTools();
+
+  
+  console.log('win1', win1.webContents.id);
+
+  ipcMain.on('finish', (event, ...args) => {
+    win2.webContents.send('finish', args);
+    console.log('Received message:', args);
+    // win2.console.log('finish event ');
+  });
 
 }
 
@@ -71,14 +79,5 @@ app.on('activate', () => {
     createWindows();
   }
 });
-// Handle communication between windows
-ipcMain.on('finish-from-win1', (event) => {
-  win2.webContents.send('display-finish', 'finished');
-});
 
-ipcMain.on('send-data-to-second', (event, data) => {
-  if (secondWindow) {
-    secondWindow.webContents.send('receive-data-from-main', data);
-  }
-});
 

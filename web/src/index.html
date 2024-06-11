@@ -29,26 +29,11 @@
 
         <p class="distance-output"></p>
 
-        <button class="finishButton">Finish</button> 
+        <button class="finish-button">Finish</button> 
       </div>
     </div>
 
-      <h1>Main Window</h1>
-      <button onclick="sendData()">Send Data to Second Window</button>
-      
-      <script>
-        
-        const { ipcRenderer } = require('electron');
-
-        function sendData() {
-          const data = {
-            message: 'Hello from Main Window!',
-            value: 42
-          };
-
-          ipcRenderer.send('send-data-to-second', data);
-        }
-      </script>
+      <h1>Main Window</h1>      
   </div>
 
   <main>
