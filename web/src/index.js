@@ -1,69 +1,287 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('node:path');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
+const hasWebSerial = "serial" in navigator;
+//import * as path from 'path'; 
+// import { ipcRenderer as ipc } from '../node_modules/@electron';
+let isConnected = false;
 
-const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
+const $notSupported = document.getElementById("not-supported");
+const $supported = document.getElementById("supported");
+const $notConnected = document.getElementById("not-connected");
+const $connected = document.getElementById("connected");
 
-  const handleSelectSerialPort = (event, portList, webContents, callback) => {
-    console.log('select-serial-port FIRED WITH', portList);
+const $connectButton = document.getElementById("connectButton");
+const $startButton = document.querySelector(".start-button");
+const $responseElement = document.querySelector(".response");
+const $distanceOutput = document.querySelector(".distance-output");
+const $finishButton = document.querySelector(".finish-button");
 
-    event.preventDefault()
-    const arduino = portList.find(port => port.displayName && port.displayName.toLowerCase().includes('arduino'))
-    if (arduino) {
-      callback(arduino.portId)
-    } else {
-      callback('') //Could not find any matching devices
-    }
-  };
+const minimumDistanceFinish = 13;
 
-  mainWindow.webContents.session.on('select-serial-port', handleSelectSerialPort);
 
-  mainWindow.on('close', () => {
-    mainWindow.webContents.session.removeListener('select-serial-port', handleSelectSerialPort);
-  });
+let playerIs = false;
+let finishDistance;
+let presenceDistance;
+let armDistance;
+let shock;
+let playerId = 1;
+let startTime;
 
-  // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+const players = [];
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+let connectedArduinoPorts = [];
+
+const init = async () => {
+    displaySupportedState();
+    if (!hasWebSerial) return;
+
+    displayConnectionState();
+    navigator.serial.addEventListener("connect", (e) => {
+        const port = e.target;
+        const info = port.getInfo();
+        console.log("connect", port, info);
+        if (isArduinoPort(port)) {
+            connectedArduinoPorts.push(port);
+            if (!isConnected) {
+                connect(port);
+            }
+        }
+    });
+
+    navigator.serial.addEventListener("disconnect", (e) => {
+        const port = e.target;
+        const info = port.getInfo();
+        console.log("disconnect", port, info);
+        connectedArduinoPorts = connectedArduinoPorts.filter((p) => p !== port);
+    });
+    $connectButton.addEventListener("click", handleClickConnect);
+    $finishButton.addEventListener("click", handleFinishGame);
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  createWindow();
 
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+const isArduinoPort = (port) => {
+    const info = port.getInfo();
+    return (
+        info.usbProductId === 32823 &&
+        info.usbVendorId === 9025
+    );
+};
+
+const handleClickConnect = async () => {
+    const port = await navigator.serial.requestPort();
+    console.log(port);
+    const info = port.getInfo();
+    console.log(info);
+    await connect(port);
+};
+
+
+const connect = async (port) => {
+    isConnected = true;
+    displayConnectionState();
+    await port.open({ baudRate: 9600 });
+    while (port.readable) {
+        const decoder = new TextDecoderStream();
+        const lineBreakTransformer = new TransformStream({
+            transform(chunk, controller) {
+                const text = chunk;
+                const lines = text.split("\n");
+                lines[0] = (this.remainder || "") + lines[0];
+                this.remainder = lines.pop();
+                lines.forEach((line) => controller.enqueue(line));
+            },
+            flush(controller) {
+                if (this.remainder) {
+                    controller.enqueue(this.remainder);
+                }
+            },
+        });
+
+        //GET READER
+        const readableStreamClosed = port.readable.pipeTo(decoder.writable);
+        const inputStream = decoder.readable.pipeThrough(lineBreakTransformer);
+        const reader = inputStream.getReader();
+
+        //GET WRITER
+        const textEncoder = new TextEncoderStream();
+        const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+        const writer = textEncoder.writable.getWriter();
+
+
+        //sends at hte beginning player is false FINALLY
+        await writer.write(
+            JSON.stringify({
+                playerIs: playerIs
+            })
+        );
+
+        const handleArduinoData = (parsed) => {
+            //console.log(parsed);
+            finishDistance = parsed.finishDistance;
+            presenceDistance = parsed.presenceDistance;
+            armDistance = parsed.armDistance;
+            shock = parsed.shockOutput;
+
+            if (armDistance < minimumArmDistance) {
+                //console.log( "new arm distance", armDistance);
+                minimumArmDistance = armDistance;
+                accuracy.push(armDistance);
+                console.log("Accuracy", accuracy);
+            };
+
+            $distanceOutput.innerHTML = `
+        Finish Distance: ${finishDistance} cm<br>
+        Presence Distance: ${presenceDistance} cm<br>
+        Arm Distance: ${armDistance} cm<br>
+        Player is: ${playerIs}<br>
+        Shock: ${shock} 
+    `;
+        }
+
+        const handleStartGame = async () => {
+            playerIs = true;
+            addPlayerObject();
+            console.log("Start game", playerIs);
+            startTime = new Date();
+            await writer.write(
+                JSON.stringify({
+                    playerIs: playerIs
+                })
+            );
+            await writer.write("\n");
+        };
+
+        $startButton.addEventListener("click", handleStartGame);
+        
+        try {
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    // |reader| has been canceled.
+                    break;
+                }
+                try {
+                    const parsed = JSON.parse(value);
+                    console.log(parsed); //slow
+                    handleArduinoData(parsed);
+                    finishDistance = parsed.finishDistance;
+                    presenceDistance = parsed.presenceDistance;
+                    armDistance = parsed.armDistance;
+                    shock = parsed.shockOutput;
+
+                     if (finishDistance < minimumDistanceFinish) {
+                        playerIs = false;
+                        await writer.write(
+                            JSON.stringify({
+                                playerIs: playerIs
+                            })
+                        );
+                        handleFinishGame();
+                        console.log("Finish game");
+                    };
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            reader.releaseLock();
+            writer.releaseLock();
+            //clearInterval(intervalId);
+        }
     }
-  });
-});
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+    port.addEventListener("disconnect", () => {
+        isConnected = false;
+        console.log("Disconnected");
+        displayConnectionState();
+    });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+};
+
+const checkFinishSensor = (finishDistance, minimumDistanceFinish) => {
+    if (finishDistance < minimumDistanceFinish) {
+        handleFinishGame();
+        console.log("Finish game");
+        return false;
+    } };
+
+const displaySupportedState = () => {
+    if (hasWebSerial) {
+        $notSupported.style.display = "none";
+        $supported.style.display = "block";
+    } else {
+        $notSupported.style.display = "block";
+        $supported.style.display = "none";
+    }
+};
+
+const displayConnectionState = () => {
+    if (isConnected) {
+        $notConnected.style.display = "none";
+        $connected.style.display = "block";
+    } else {
+        $notConnected.style.display = "block";
+        $connected.style.display = "none";
+    }
+};
+
+
+
+
+let minimumArmDistance = 15;
+
+
+const accuracy = [];
+const playerMinMax = [];
+
+
+const handleFinishGame = () => {
+
+    if (!startTime) {
+        console.error('The game has not been started.');
+    }
+
+    //FOR SOME REASON IT SENDS THE DATA TWICE
+
+    playerMinMax.push(Math.min(...accuracy));
+    playerMinMax.push(Math.max(...accuracy));
+
+    const endTime = new Date(); // Record the end time
+    const elapsedTime = (endTime - startTime) / 1000;
+
+    const message = {
+        playerMinMax: playerMinMax,
+        // finishDistance: finishDistance, 
+        // presenceDistance: presenceDistance, 
+        //armDistance: armDistance,
+        playerTime: elapsedTime
+    };
+    console.log("Game Over, DATA: ", message);
+
+    window.electronAPI.send('finish', message);
+    //electronAPI.send('finish-from-win1', data);   
+};
+
+const addPlayerObject = () => {
+
+    const playerObject = {
+        id: playerId++,
+        score: 0
+    }
+
+    $responseElement.innerHTML = `
+        <p>ID: ${playerObject.id}</p>
+        <p>Score: ${playerObject.score}</p>
+    `;
+
+    players.push(playerObject);
+
+    return playerObject;
+};
+
+
+
+init();
+
+
