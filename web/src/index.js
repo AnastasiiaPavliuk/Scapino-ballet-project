@@ -13,6 +13,8 @@ const $startButton = document.querySelector(".start-button");
 const $responseElement = document.querySelector(".response");
 const $distanceOutput = document.querySelector(".distance-output");
 const $finishButton = document.querySelector(".finish-button");
+const $mainAudio = document.querySelector(".main-audio");
+const $shockAudio = document.querySelector(".shock-audio");
 
 const minimumDistanceFinish = 13;
 
@@ -107,21 +109,21 @@ const connect = async (port) => {
       })
     );
 
-    const handleStartGame = async () => {
+    const sendStartToArduino = async () => {
       playerIs = true;
-      addPlayerObject();
-    startTime = new Date();
       console.log("Start game", playerIs);
+
       await writer.write(
         JSON.stringify({
           playerIs: playerIs,
         })
       );
-
       await writer.write("\n");
     };
-
-    $startButton.addEventListener("click", handleStartGame);
+    
+    $startButton.addEventListener("click",handleStartGame);
+    $startButton.addEventListener("click",sendStartToArduino);
+    
 
     try {
       while (true) {
@@ -191,11 +193,16 @@ let minimumArmDistance = 15;
 //const accuracy = [];
 // const playerMinMax = [];
 
-
-
 //------local storage and creating player
 
 let currentPlayer = null;
+//$mainAudio.play();
+
+const handleStartGame = () => {
+    addPlayerObject();
+    console.log("Start game");
+    startTime = new Date();
+}
 
 class Player {
     constructor(id) {
@@ -236,7 +243,7 @@ const handleArduinoData = (parsed) => {
     armDistance = parsed.armDistance;
     shock = parsed.shockOutput;
     
-    console.log("Arm Distance: ", armDistance);
+    //console.log("Arm Distance: ", armDistance);
 
     if (armDistance < playerMin) {
         console.log( "new arm distance", armDistance);
@@ -246,6 +253,22 @@ const handleArduinoData = (parsed) => {
     if (armDistance > playerMax) {
         console.log( "new arm distance", armDistance);
         playerMax = armDistance;
+    }
+
+    if (shock && playerIs) {
+
+        // // maybe reverse audio 
+
+        // play it for 1 sec
+        // $mainAudio.play();
+
+        $mainAudio.volume = 0.7;
+
+        $shockAudio.play();
+
+        $shockAudio.onended = function() {
+            $mainAudio.volume = 1;
+        }
     }
 
     $distanceOutput.innerHTML = `
