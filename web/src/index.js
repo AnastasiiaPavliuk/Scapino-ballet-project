@@ -121,8 +121,11 @@ const connect = async (port) => {
       await writer.write("\n");
     };
     
-    $startButton.addEventListener("click",handleStartGame);
-    $startButton.addEventListener("click",sendStartToArduino);
+    // $startButton.addEventListener("click",handleStartGame);
+    // $startButton.addEventListener("click",sendStartToArduino);
+    $startButton.addEventListener("touchstart",handleStartGame);
+    $startButton.addEventListener("touchstart",sendStartToArduino);
+
     
 
     try {
@@ -135,7 +138,7 @@ const connect = async (port) => {
         try {
           const parsed = JSON.parse(value);
           //console.log(parsed); //slow
-          handleArduinoData(parsed);
+          handleArduinoData(parsed, writer);
 
             if (parsed.finishDistance < minimumDistanceFinish) {
             playerIs = false;
@@ -236,7 +239,7 @@ const addPlayerObject = () => {
 let playerMin = 6;
 let playerMax = 10;
 
-const handleArduinoData = (parsed) => {
+const handleArduinoData = (parsed, writer) => {
     //console.log(parsed);
     finishDistance = parsed.finishDistance;
     presenceDistance = parsed.presenceDistance;
