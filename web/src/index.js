@@ -1,4 +1,5 @@
 const hasWebSerial = "serial" in navigator;
+import Player from './modules/player.js';
 //import * as path from 'path';
 // import { ipcRenderer as ipc } from '../node_modules/@electron';
 let isConnected = false;
@@ -54,7 +55,9 @@ const init = async () => {
     console.log("disconnect", port, info);
     connectedArduinoPorts = connectedArduinoPorts.filter((p) => p !== port);
   });
+
   $connectButton.addEventListener("click", handleClickConnect);
+  //handleClickConnect();
   $finishButton.addEventListener("click", handleFinishGame);
 };
 
@@ -109,22 +112,30 @@ const connect = async (port) => {
       })
     );
 
-    const sendStartToArduino = async () => {
-      playerIs = true;
-      console.log("Start game", playerIs);
 
-      await writer.write(
-        JSON.stringify({
-          playerIs: playerIs,
-        })
-      );
-      await writer.write("\n");
+    const handleStartEvent = () => {
+    console.log("hanldeStartEvent");
+    handleStartGame();
+    sendStartToArduino(writer);
     };
-    
+    // const sendStartToArduino = async ( ) => {
+    //   playerIs = true;
+    //   console.log("Start game", playerIs);
+
+    //   await writer.write(
+    //     JSON.stringify({
+    //       playerIs: playerIs,
+    //     })
+    //   );
+    //   await writer.write("\n");
+    // };
+    $startButton.addEventListener("click", handleStartEvent);
     // $startButton.addEventListener("click",handleStartGame);
-    // $startButton.addEventListener("click",sendStartToArduino);
-    $startButton.addEventListener("touchstart",handleStartGame);
-    $startButton.addEventListener("touchstart",sendStartToArduino);
+    // $startButton.addEventListener("click", () => sendStartToArduino(writer));
+    // $startButton.addEventListener("touchstart",handleStartGame);
+    // $startButton.addEventListener("touchstart", () => sendStartToArduino(writer));
+
+
 
     
 
@@ -140,17 +151,17 @@ const connect = async (port) => {
           //console.log(parsed); //slow
           handleArduinoData(parsed, writer);
 
-            if (parsed.finishDistance < minimumDistanceFinish) {
-            playerIs = false;
-            await writer.write(
-              JSON.stringify({
-                playerIs: playerIs,
-              })
-            );
+            // if (parsed.finishDistance < minimumDistanceFinish) {
+            // playerIs = false;
+            // await writer.write(
+            //   JSON.stringify({
+            //     playerIs: playerIs,
+            //   })
+            // );
 
-            handleFinishGame();
-            console.log("Finish game");
-          }
+          //   handleFinishGame();
+          //   console.log("Finish game");
+          // }
         } catch (error) {
           console.log(error);
         }
@@ -207,26 +218,39 @@ const handleStartGame = () => {
     startTime = new Date();
 }
 
-class Player {
-    constructor(id) {
-        this.id = id;
-        this.minDistance = 0;
-        this.maxDistance = 0;
-        this.time = 0;
-    } 
+const sendStartToArduino = async (writer) => {
+  console.log(writer);
+  playerIs = true;
+  console.log("Start game", playerIs);
 
-    setMinDistance(distance) {
-        this.minDistance = distance;
-    }
-
-    setMaxDistance(distance) {
-        this.maxDistance = distance;
-    }
-
-    setTime(time) {
-        this.time = time;
-    }
+  await writer.write(
+    JSON.stringify({
+      playerIs: playerIs,
+    })
+  );
+  await writer.write("\n");
 };
+
+// class Player {
+//     constructor(id) {
+//         this.id = id;
+//         this.minDistance = 0;
+//         this.maxDistance = 0;
+//         this.time = 0;
+//     } 
+
+//     setMinDistance(distance) {
+//         this.minDistance = distance;
+//     }
+
+//     setMaxDistance(distance) {
+//         this.maxDistance = distance;
+//     }
+
+//     setTime(time) {
+//         this.time = time;
+//     }
+// };
 
 const addPlayerObject = () => {
     currentPlayer = new Player(playerId++);
@@ -239,7 +263,19 @@ const addPlayerObject = () => {
 let playerMin = 6;
 let playerMax = 10;
 
-const handleArduinoData = (parsed, writer) => {
+const handleArduinoData =  async (parsed, writer) => {
+
+  if (parsed.finishDistance < minimumDistanceFinish) {
+    playerIs = false;
+    await writer.write(
+      JSON.stringify({
+        playerIs: playerIs,
+      })
+    );
+
+      handleFinishGame();
+      console.log("Finish game");
+    }
     //console.log(parsed);
     finishDistance = parsed.finishDistance;
     presenceDistance = parsed.presenceDistance;
