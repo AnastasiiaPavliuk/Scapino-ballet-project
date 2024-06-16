@@ -134,6 +134,10 @@ h2 {
     cursor: pointer;
 }
 
+.hidden {
+    display: none;
+}
+
 .button-white {
     color: #FBFBFB;
     border: 2px solid #FBFBFB;
@@ -206,6 +210,12 @@ h2 {
     background-color: rgba(242, 242, 242, 0.5);
 }
 
+
+/* .instructions{
+    display: none;
+} */
+
+
 .navbar-links {
     display: none;
     flex-direction: column;
@@ -243,3 +253,7 @@ h2 {
     display: flex;
     align-items: center;
 }
+/* 
+.start{
+    
+} */

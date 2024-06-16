@@ -1,8 +1,11 @@
 const hasWebSerial = "serial" in navigator;
 import Player from './modules/player.js';
-import { displaySupportedState, displayConnectionState } from './modules/ui.js';
-//import { displaySupportedState} from './modules/ui.js';
+import { displaySupportedState, displayConnectionState, toggleDevVisibility} from './modules/ui.js';
 let isConnected = false;
+
+
+///-------
+///-----
 
 const $notSupported = document.getElementById("not-supported");
 const $supported = document.getElementById("supported");
@@ -16,6 +19,11 @@ const $distanceOutput = document.querySelector(".distance-output");
 const $finishButton = document.querySelector(".finish-button");
 const $mainAudio = document.querySelector(".main-audio");
 const $shockAudio = document.querySelector(".shock-audio");
+const $toggleButton = document.querySelector(".toggle-button");
+const $navbarLinks = document.querySelector(".navbar-links");
+
+const $buttonHTP = document.querySelector(".button-htp");
+
 
 const minimumDistanceFinish = 13;
 
@@ -26,11 +34,11 @@ let armDistance;
 let shock;
 let playerId = localStorage.getItem('playerId') ? parseInt(localStorage.getItem('playerId')) : 1;
 let startTime;
+let playerMin;
+let playerMax;
 
 let connectedArduinoPorts = [];
 
-const toggleButton = document.getElementsByClassName('toggle-button');
-const navbarLinks = document.getElementsByClassName('navbar-links');
 
 const init = async () => {
    //displaySupportedState();
@@ -60,9 +68,32 @@ const init = async () => {
   });
 
   $connectButton.addEventListener("click", handleClickConnect);
+  $buttonHTP.addEventListener("click", showHTPSection);
+
   //handleClickConnect();
   $finishButton.addEventListener("click", handleFinishGame);
+
+  $toggleButton.addEventListener("click", () => {
+    $navbarLinks.classList.toggle("active")
+  });
+
+  document.addEventListener('keydown', toggleDevVisibility);
 };
+
+const showHTPSection = () => {
+  const instructions = document.querySelector(".instructions");
+  const index = document.querySelector(".index");
+
+  instructions.classList.toggle("hidden");
+  index.classList.toggle("hidden");
+
+  if (!instructions.classList.contains("hidden")) {
+  $buttonHTP.innerHTML = "Back";
+  } else {
+    $buttonHTP.innerHTML = "How to Play";
+  }
+}
+
 
 const isArduinoPort = (port) => {
   const info = port.getInfo();
@@ -154,33 +185,7 @@ const connect = async (port) => {
     // displayConnectionState();
     displayConnectionState(isConnected, $notConnected, $connected);
   });
-
-  toggleButton.addEventListener('click', () => {
-    navbarLinks.classList.toggle('active')
-  });
 };
-
-// const displaySupportedState = () => {
-//   if (hasWebSerial) {
-//     $notSupported.style.display = "none";
-//     $supported.style.display = "block";
-//   } else {
-//     $notSupported.style.display = "block";
-//     $supported.style.display = "none";
-//   }
-// };
-
-// const displayConnectionState = () => {
-//   if (isConnected) {
-//     $notConnected.style.display = "none";
-//     $connected.style.display = "block";
-//   } else {
-//     $notConnected.style.display = "block";
-//     $connected.style.display = "none";
-//   }
-// };
-
-//let minimumArmDistance = 15;
 
 //------local storage and creating player
 
@@ -192,6 +197,9 @@ const handleStartGame = () => {
     addPlayerObject();
     console.log("Start game");
     startTime = new Date();
+
+  playerMin = 10;
+  playerMax = 11;
 }
 
 const addPlayerObject = () => {
@@ -215,8 +223,6 @@ const sendStartToArduino = async (writer) => {
   await writer.write("\n");
 };
 
-let playerMin = 6;
-let playerMax = 10;
 
 const handleArduinoData =  async (parsed, writer) => {
 
@@ -244,7 +250,7 @@ const handleArduinoData =  async (parsed, writer) => {
         playerMin = armDistance;
     }
 
-    if (armDistance > playerMax) {
+    if (armDistance > playerMax && armDistance < 50 ) {
         console.log( "new arm distance", armDistance);
         playerMax = armDistance;
     }

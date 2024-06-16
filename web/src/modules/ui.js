@@ -17,3 +17,11 @@ export const displayConnectionState = (isConnected, $notConnected, $connected) =
         $connected.style.display = "none";
     }
 };
+
+export const toggleDevVisibility = (e) => {
+    if (e.key === 'h') {
+        document.querySelector(".develop").classList.toggle("hidden");
+    }
+
+};
+

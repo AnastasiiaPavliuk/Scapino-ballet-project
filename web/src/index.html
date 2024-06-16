@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Language" content="en-US">
+
   <title>Start</title>
   <link rel="stylesheet" href="./css/reset.css">
   <link rel="stylesheet" href="./css/style.css">
@@ -15,7 +17,7 @@
     rel="stylesheet">
 </head>
 
-<body >
+<body>
   <div class="develop">
     <div id="app">
       <div id="not-supported">
@@ -31,53 +33,53 @@
           <input type="range" min="0" max="255" value="0" id="g">
           <input type="range" min="0" max="255" value="0" id="b"> -->
         </div>
-  
         <p class="response">response</p>
+
 
         <p class="distance-output"></p>
 
-        <button class="finish-button">Finish</button> 
+        <button class="finish-button">Finish</button>
       </div>
     </div>
-
-      <p>Main Window</p>      
   </div>
-      <main>
-      <div class="audio">
-            <audio class="main-audio" loop autoplay>
-              <source src="./assets/music-scapino.mp3" type="audio/mp3">
-              Your browser does not support the audio element.
-            </audio>
-            <audio class="shock-audio">
-              <source src="./assets/distord.mp3" type="audio/mp3">
-              Your browser does not support the audio element.
-            </audio>
-      </div>
+  <main>
+    <div class="audio">
+      <audio class="main-audio" loop>
+        <source src="./assets/music-scapino.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+      </audio>
+      <audio class="shock-audio">
+        <source src="./assets/distord.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
 
-      <section class="start-screen">
+    <section class="start-screen">
 
+      <nav class="navbar">
+        <img src="./assets/ScapinoBallet_Logo-zwart.png" alt="Scapino logo" class="logo">
 
-        <nav class="navbar">
-          <img src="./assets/ScapinoBallet_Logo-zwart.png" alt="Scapino logo" class="logo">
-          <div class="toggle-button">
-            <p>language</p>
+        <div class="toggle-button button">
+          <p>language</p>
+        </div>
+
+        <div class="navbar-links">
+          <div class="language-switch">
+            <img src="./assets/English.png" alt="english flag" class="flag">
+            <a href="#">English</a>
           </div>
-          <div class="navbar-links">
-            <div class="language-switch">
-              <img src="./assets/English.png" alt="english flag" class="flag">
-              <a href="#">English</a>
-            </div>
-            <div class="language-switch">
-              <img src="./assets/Dutch.png" alt="dutch flag" class="flag">
-              <a href="#">Dutch</a>
-            </div>
-            <div class="language-switch">
-              <img src="./assets/Ukrain.png" alt="ukrain flag" class="flag">
-              <a href="#">Ukranian</a>
-            </div>
+          <div class="language-switch">
+            <img src="./assets/Dutch.png" alt="dutch flag" class="flag">
+            <a href="#">Dutch</a>
           </div>
-        </nav>
+          <div class="language-switch">
+            <img src="./assets/Ukrain.png" alt="ukrain flag" class="flag">
+            <a href="#">Ukranian</a>
+          </div>
+        </div>
+      </nav>
 
+      <section class="index">
         <div class="start-grid">
           <h1 class="title"><span>CHOREO</span><span>GRAPHICA</span></h1>
           <article class="start-info">
@@ -91,20 +93,51 @@
             </p>
           </article>
           <img src="./assets/dancer.png" alt="dancer" class="dancer">
-
-          <div class="buttons">
-            <a href="./instruction.html" class="button button-white">How to play</a>
-            <button class="button button-purple start-button">I'm ready</button>
-          </div>
         </div>
+      </section>
 
-        </section>
-      </main>
+      <section class="instructions hidden">
+        <h1 class="instruction-title">How to play</h1>
+
+        <ol class="steps">
+          <li class="step">
+            <div class="step-text">
+              <p class="step-number">1</p>
+              <p>Press ‘Start’ to begin with the art installation</p>
+            </div>
+            <img src="./assets/step1.png" alt="step1" class="step-image">
+          </li>
+          <li class="step">
+            <div class="step-text">
+              <p class="step-number">2</p>
+              <p>Dance through the poses</p>
+            </div>
+            <img src="./assets/step2.png" alt="step2" class="step-image">
+          </li>
+          <li class="step">
+            <div class="step-text">
+              <p class="step-number">3</p>
+              <p>Discover your artwork based on your dance</p>
+            </div>
+            <img src="./assets/step3.png" alt="step3" class="step-image">
+          </li>
+        </ol>
+
+      </section>
+
+      <div class="buttons">
+        <!-- <a href="./instruction.html" class="button button-white">How to play</a> -->
+        <button class="button button-white button-htp">How To Play</button> 
+        <button class="button button-purple start-button">I'm ready</button>
+      </div>
+
+  </main>
 
   <!-- <main>
 
     <button class="start-button">I'm ready </button>
   </main> -->
+
 
   <script type="module" src="index.js"></script>
 </body>

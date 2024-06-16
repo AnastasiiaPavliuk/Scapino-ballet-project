@@ -44,10 +44,10 @@ function createWindows() {
 
   // Create second window on the second display
   win2 = new BrowserWindow({
-    x: 500,
-    y: 800,
-    width: 800,
-    height: 600,
+    x: 0,
+    y: 0,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
