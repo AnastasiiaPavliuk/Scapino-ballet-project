@@ -1,14 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Hello World!</title>
-  <link rel="stylesheet" href="index.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Start</title>
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="https://use.typekit.net/iwr3oew.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+    rel="stylesheet">
 </head>
 
-<body>
-
+<body >
   <div class="develop">
     <div id="app">
       <div id="not-supported">
@@ -33,21 +40,71 @@
       </div>
     </div>
 
-      <h1>Main Window</h1>      
+      <p>Main Window</p>      
   </div>
+      <main>
+      <div class="audio">
+            <audio class="main-audio" loop autoplay>
+              <source src="./assets/music-scapino.mp3" type="audio/mp3">
+              Your browser does not support the audio element.
+            </audio>
+            <audio class="shock-audio">
+              <source src="./assets/distord.mp3" type="audio/mp3">
+              Your browser does not support the audio element.
+            </audio>
+      </div>
 
-  <main>
-    <audio class="main-audio" loop autoplay>
-      <source src="../assets/music-scapino.mp3" type="audio/mp3" >
-      Your browser does not support the audio element.
-    </audio>
-    <audio class="shock-audio">
-      <source src="../assets/distord.mp3" type="audio/mp3">
-      Your browser does not support the audio element.
-    </audio>
+      <section class="start-screen">
+
+
+        <nav class="navbar">
+          <img src="./assets/ScapinoBallet_Logo-zwart.png" alt="Scapino logo" class="logo">
+          <div class="toggle-button">
+            <p>language</p>
+          </div>
+          <div class="navbar-links">
+            <div class="language-switch">
+              <img src="./assets/English.png" alt="english flag" class="flag">
+              <a href="#">English</a>
+            </div>
+            <div class="language-switch">
+              <img src="./assets/Dutch.png" alt="dutch flag" class="flag">
+              <a href="#">Dutch</a>
+            </div>
+            <div class="language-switch">
+              <img src="./assets/Ukrain.png" alt="ukrain flag" class="flag">
+              <a href="#">Ukranian</a>
+            </div>
+          </div>
+        </nav>
+
+        <div class="start-grid">
+          <h1 class="title"><span>CHOREO</span><span>GRAPHICA</span></h1>
+          <article class="start-info">
+            <h2 class="ready">ARE YOU READY TO CREATE ART?</h2>
+            <p>
+              Welcome to Scapino’s interactive art installation, step into the world of modern dance, create a
+              piece
+              of
+              art and join
+              the movement!
+            </p>
+          </article>
+          <img src="./assets/dancer.png" alt="dancer" class="dancer">
+
+          <div class="buttons">
+            <a href="./instruction.html" class="button button-white">How to play</a>
+            <button class="button button-purple start-button">I'm ready</button>
+          </div>
+        </div>
+
+        </section>
+      </main>
+
+  <!-- <main>
 
     <button class="start-button">I'm ready </button>
-  </main>
+  </main> -->
 
   <script type="module" src="index.js"></script>
 </body>
