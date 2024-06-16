@@ -172,11 +172,14 @@ ol {
 .tag1 {
     writing-mode: vertical-lr;
     padding: 3rem;
+    rotate: 180deg;
+    text-transform: uppercase;
 }
 
 .tag2 {
     writing-mode: vertical-rl;
     padding: 3rem;
+    text-transform: uppercase;
 }
 
 .info {

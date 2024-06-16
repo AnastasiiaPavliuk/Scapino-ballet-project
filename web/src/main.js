@@ -4,12 +4,6 @@ const path = require('path');
 let win1, win2;
 
 function createWindows() {
-   //const displays = screen.getAllDisplays();
-  // if (displays.length < 2) {
-  //   console.log('Need at least two monitors');
-  //   app.quit();
-  //   return;
-  // }
 
   win1 = new BrowserWindow({
     x: 500,

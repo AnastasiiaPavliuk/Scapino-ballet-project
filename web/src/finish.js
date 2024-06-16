@@ -1,6 +1,8 @@
 // Select the root element and the canvas element with the class 'drawing-surface'
 const $root = document.querySelector(':root');
 const $canvas = document.querySelector('.drawing-surface');
+const $tag1 = document.querySelector('.tag1');
+const $tag2 = document.querySelector('.tag2');
 
 // Declare variables for player metrics and state management
 let playerMin;
@@ -23,7 +25,7 @@ const handleFinish = (min, max, time) => {
     playerTime = time;
 
     // Log player metrics to the console
-    console.log(playerMin, playerMax, playerTime);
+    //console.log(playerMin, playerMax, playerTime);
 
     // Check if blob is not created, create it, otherwise update the existing blob
     if (!blob) {
@@ -40,7 +42,6 @@ const handleFinish = (min, max, time) => {
 const createBlob = () => {
     createCanvas();
     createParticle();
-    console.log('createParticle() called.');
 }
 
 // Function to update the existing blob
@@ -67,6 +68,14 @@ const randomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1) + 
 // Function to generate a random percentage string between min and max
 const generateRandomPercentage = (min, max) => {
     return `${Math.floor(Math.random() * (max - min + 1)) + min}%`;
+};
+
+const setTagInnerHtml = (word) => {
+    if (word === "precise" || word === "freestyle") {
+        $tag1.innerHTML = word;
+    } else if (word === "fluent" || word === "slow pased") {
+        $tag2.innerHTML = word;
+    } 
 };
 
 // Function to generate random border-radius values
@@ -113,9 +122,13 @@ const mapPlayerMin = (playerMin) => {
 // Function to calculate HSL color based on player metrics
 const calculateHSL = () => {
     if (average() >= 0 && average() <= 10) {
+        setTagInnerHtml("precise");
         const lightness = mapPlayerMin(playerMin);
+        //blue
         return `hsl(215, 50%, ${lightness}%)`;
     } else {
+        //yellow
+        setTagInnerHtml("freestyle");
         const lightness = mapPlayerMin(playerMin);
         return `hsl(60, 50%, ${lightness}%)`;
     }
@@ -123,17 +136,16 @@ const calculateHSL = () => {
 
 // Function to calculate color based on playerTime
 const colorPlayerTime = () => {
-    console.log(playerTime, "from colorPlayerTime");
     if (playerTime >= 20 && playerTime <= 60) {
-        const huePlayerTime = 275; // Purple hue
-        const saturationPlayerTime = 70;
+        // Purple hue
         const lightnessPlayerTime = 40;
-        return `hsl(${huePlayerTime}, ${saturationPlayerTime}%, ${lightnessPlayerTime}%)`;
+        setTagInnerHtml("fluent");
+        return `hsl(275, 70%, ${lightnessPlayerTime}%)`;
     } else {
-        const huePlayerTime = 335; // Pink hue
-        const saturationPlayerTime = 90;
+         // Pink hue
         const lightnessPlayerTime = 60;
-        return `hsl(${huePlayerTime}, ${saturationPlayerTime}%, ${lightnessPlayerTime}%)`;
+        setTagInnerHtml("slow pased");
+        return `hsl(335, 90%, ${lightnessPlayerTime}%)`;
     }
 };
 
