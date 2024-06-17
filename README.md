@@ -2,18 +2,35 @@
 
 Welcome to Choreo-Graphica project! This project is designed to run with Arduino and Electron.js to create interactive experiences.
 
-## Installation
+## Installation Guide for client
 
-To get started, clone the repository and follow these steps:
+Follow these steps to set up and run the Choreo-Graphica app:
 
-```bash
-git clone https://github.com/AnastasiiaPavliuk/Rotrijk.git/choreo-graphica
-cd choreo-graphica
-npm install
-npm start
-```
+### 1. Connect an External Monitor
+1. **Use a 24-inch monitor** (recommended).
+2. **Connect via HDMI cable** to your computer.
 
-**Note:** This project requires Arduino to run.
+### 2. Connect the Arduino
+1. **Plug in the Arduino** using the provided type-C cable.
+
+### 3. Install and Unpack the App
+1. **Download the app** from the provided link.
+2. **Unpack the zip file**:
+   - Right-click and select "Extract All" (Windows) or double-click to unzip (Mac).
+3. **Run the installer**:
+   - Open the unpacked folder.
+   - Run `setup.exe` (Windows) or the `.dmg` file (Mac) and follow the instructions.
+
+### 4. Launch the App
+1. **Locate and open the Choreo-Graphica app** in your applications list or start menu.
+
+By following these steps, you'll be ready to enjoy the Choreo-Graphica interactive experience!
+
+
+## Arduino circut 
+
+![circut](https://github.com/AnastasiiaPavliuk/Rotrijk/assets/133123399/439029f5-72bb-4e01-b614-1be43ad94db5)
+
 
 
 ## Code exploration
