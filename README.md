@@ -15,7 +15,8 @@ npm start
 
 **Note:** This project requires Arduino to run.
 
-## Features
+
+## Code exploration
 
 - **Run on Electron.js:** The project is built to run on Electron.js platform.
 - **IPC communication:** Utilizes `ipcRenderer` to communicate between start and finish screens.
@@ -26,11 +27,11 @@ npm start
 - **Connected with Serial Reader:** Communicates with Arduino via serial connection.
 - **Dynamic Blob Changes:** Changes the blob based on player's data. [Link to the code file](#)
 
-## Cool Stuff
 
-### Using Tone.js for Music
 
-We experimented with Tone.js for music but didn't include it in the final version due to time constraints.
+## Experiment iterations 
+
+We explored Tone.js for music experimentation. This library offers functions for distorting audio, custom number of channels, and provides various other interesting features. However, since audio isn't our primary focus, we shifted our attention to other aspects of the project.
 
 ### HTML (index.html)
 
