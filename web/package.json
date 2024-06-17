@@ -1,6 +1,6 @@
 {
-  "name": "basic-app",
-  "productName": "basic-app",
+  "name": "choreo-graphica",
+  "productName": "choreo-graphica",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": "src/main.js",
