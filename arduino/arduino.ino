@@ -2,11 +2,11 @@
 #include <ArduinoJson.h>
 #include <ArduinoJson.hpp>
 
-#define led_1 8
-#define led_2 7
+#define led_yellow 8 //yellow
+#define led_blue 7 //blue
 #define SHOCK_PIN 9
 
-#define buzzer 10
+// #define buzzer 10
 
 #define armTrigPin 2
 #define armEchoPin 3
@@ -20,18 +20,18 @@
 float armDistance, presenceDistance, finishDistance;
 bool playerIs = false;
 
-int presenceDistanceNum = 13;
-int armDistanceNum = 16;
-int armDistanceMin = 10;
-int armDistanceMax = 12;
+int presenceDistanceNum = 70;
+int armDistanceNum = 25;
+int armDistanceMin = 12;
+int armDistanceMax = 16;
 int shockOutput;
 
 void setup() {
   Serial.begin(9600);
   pinMode(SHOCK_PIN, INPUT);  
-  pinMode(led_1, OUTPUT);
-  pinMode(led_2, OUTPUT);
-  pinMode(buzzer, OUTPUT);
+  pinMode(led_yellow, OUTPUT);
+  pinMode(led_blue, OUTPUT);
+  // pinMode(buzzer, OUTPUT);
   pinMode(armTrigPin, OUTPUT);
   pinMode(armEchoPin, INPUT);
   pinMode(presenceTrigPin, OUTPUT);
@@ -77,22 +77,18 @@ void loop() {
 
 void checkPlayerInTheFrame(float presenceDistance, float armDistance) {
   //if distance less than 15
-  if (presenceDistance < presenceDistanceNum || armDistance < armDistanceNum) {
+   if (presenceDistance < presenceDistanceNum || armDistance < armDistanceNum) {
 
-    //if player is persize
-      if ((armDistance <= armDistanceMin )&&(armDistance <= armDistanceMin )){
-      digitalWrite(led_1, LOW);
-      digitalWrite(led_2, HIGH);
-    } else {
-      digitalWrite(led_2, LOW);
-      digitalWrite(led_1, HIGH);
+    //if player is persize between 12 and 16
+      if ((armDistance >= armDistanceMin )&&(armDistance <= armDistanceMax )){
+      digitalWrite(led_yellow, LOW);
+      digitalWrite(led_blue, HIGH);
+    } 
+    else {
+      digitalWrite(led_blue, LOW);
+      digitalWrite(led_yellow, HIGH);
     }
    } 
-   //else {
-  //   digitalWrite(led_1, LOW);
-  //   digitalWrite(led_2, LOW);
-  // }
-  
 }
 
 float measureDistance(int trigPin, int echoPin) {
@@ -114,6 +110,6 @@ void logSerial(const char* message) {
   Serial.println();
 }
 
-void tooClose(float distance) {
-  tone(buzzer, 100);
-}
+// void tooClose(float distance) {
+//   tone(buzzer, 100);
+// }

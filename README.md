@@ -6,25 +6,19 @@ Welcome to Choreo-Graphica project! This project is designed to run with Arduino
 
 Follow these steps to set up and run the Choreo-Graphica app:
 
-### 1. Connect an External Monitor
-1. **Use a 24-inch monitor** (recommended).
-2. **Connect via HDMI cable** to your computer.
+#### 1. Connect an External Monitor and arduino
+Use 24inch monitor for better experience. You can connect arduino just by plugging it in using the provided type-C to type-C cable
 
-### 2. Connect the Arduino
-1. **Plug in the Arduino** using the provided type-C cable.
+#### 2. Install and Unpack the App
+- Download the [Choreo-Graphica App] (web/out/make/zip/darwin/arm64/choreo-graphica-darwin-arm64-1.0.0.zip)
+- Unpack the zip file
+- Run the installer
+- Open the unpacked folder.
+- Run `setup.exe` (Windows) or the `.dmg` file (Mac) and follow the instructions.
 
-### 3. Install and Unpack the App
-1. **Download the app** from the provided link.
-2. **Unpack the zip file**:
-   - Right-click and select "Extract All" (Windows) or double-click to unzip (Mac).
-3. **Run the installer**:
-   - Open the unpacked folder.
-   - Run `setup.exe` (Windows) or the `.dmg` file (Mac) and follow the instructions.
+#### 3. Launch the App 
+Locate and open the Choreo-Graphica app in your applications list or start menu.
 
-### 4. Launch the App
-1. **Locate and open the Choreo-Graphica app** in your applications list or start menu.
-
-By following these steps, you'll be ready to enjoy the Choreo-Graphica interactive experience!
 
 
 ## Arduino circut 

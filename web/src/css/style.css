@@ -115,6 +115,10 @@ h2 {
     grid-column: span 2;
         padding-top: 5rem;
         text-align: center;
+    /* display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    height: 40px; */
 }
 
 .button {
@@ -149,6 +153,24 @@ h2 {
 
 .button:active {
     background-color: rgba(211, 211, 211, 0.8);
+}
+
+/* .button-container .disabled-text {
+    display: none;
+} */
+
+/* .button-container:has(.button:disabled) .disabled-text {
+    display: block;
+    color: #787878;
+    font-style: italic;
+    margin-top: 10px;
+} */
+
+.button:disabled {
+    background-color: rgba(211, 211, 211, 0.8);
+    color: #787878;
+    border: 2px solid #575757;
+    cursor: initial;
 }
 
 .button-purple {

@@ -121,7 +121,7 @@ const mapPlayerMin = (playerMin) => {
 
 // Function to calculate HSL color based on player metrics
 const calculateHSL = () => {
-    if (average() >= 0 && average() <= 10) {
+    if (average() >= 12 && average() <= 16) {
         setTagInnerHtml("precise");
         const lightness = mapPlayerMin(playerMin);
         //blue
@@ -136,16 +136,18 @@ const calculateHSL = () => {
 
 // Function to calculate color based on playerTime
 const colorPlayerTime = () => {
-    if (playerTime >= 20 && playerTime <= 60) {
+    // if (playerTime >= 20 && playerTime <= 60) {
+    if (playerTime >= 20) {
+        // Pink hue
+        const lightnessPlayerTime = 60;
+        setTagInnerHtml("slow pased");
+        return `hsl(335, 90%, ${lightnessPlayerTime}%)`;
+    } else {
         // Purple hue
         const lightnessPlayerTime = 40;
         setTagInnerHtml("fluent");
         return `hsl(275, 70%, ${lightnessPlayerTime}%)`;
-    } else {
-         // Pink hue
-        const lightnessPlayerTime = 60;
-        setTagInnerHtml("slow pased");
-        return `hsl(335, 90%, ${lightnessPlayerTime}%)`;
+        
     }
 };
 

@@ -151,6 +151,10 @@ const connect = async (port) => {
     const handleStartEvent = () => {
     //console.log("hanldeStartEvent");
     handleStartGame();
+    //make button disabled
+    // if (playerIs) {
+     $startButton.disabled = true;
+    // };
     sendStartToArduino(writer);
     };
 
@@ -197,6 +201,7 @@ const handleStartGame = () => {
     addPlayerObject();
     console.log("Start game");
     startTime = new Date();
+
 
   playerMin = 10;
   playerMax = 11;
@@ -250,7 +255,7 @@ const handleArduinoData =  async (parsed, writer) => {
         playerMin = armDistance;
     }
 
-    if (armDistance > playerMax && armDistance < 50 ) {
+    if (armDistance > playerMax && armDistance < 25 ) {
         console.log( "new arm distance", armDistance);
         playerMax = armDistance;
     }
@@ -289,7 +294,7 @@ const handleFinishGame = () => {
     }
     const endTime = new Date(); // Record the end time
     const elapsedTime = (endTime - startTime) / 1000;
-
+    $startButton.disabled = false;
     if (currentPlayer) {
         currentPlayer.setTime(elapsedTime);
         currentPlayer.setMinDistance(playerMin);
