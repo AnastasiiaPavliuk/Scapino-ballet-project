@@ -10,7 +10,7 @@ Follow these steps to set up and run the Choreo-Graphica app:
 Use 24inch monitor for better experience. You can connect arduino just by plugging it in using the provided type-C to type-C cable
 
 #### 2. Install and Unpack the App
-- Download the [Choreo-Graphica App](web/out/make/zip/darwin/arm64/choreo-graphica-darwin-arm64-1.0.0.zip)
+- Download the [Choreo-Graphica App](https://drive.google.com/file/d/1CU4qKygEx9H0LNfzkony0--B2gCZkS1v/view?usp=sharing)
 - Unpack the zip file
 - Run the installer
 - Open the unpacked folder.
