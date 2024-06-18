@@ -4,18 +4,18 @@ const path = require('path');
 let win1, win2;
 
 function createWindows() {
-   //const displays = screen.getAllDisplays();
-  // if (displays.length < 2) {
-  //   console.log('Need at least two monitors');
-  //   app.quit();
-  //   return;
-  // }
-
+  const displays = screen.getAllDisplays();
+  if (displays.length < 2) {
+    console.log('Need at least two monitors');
+    app.quit();
+    return;
+  }
+  
   win1 = new BrowserWindow({
-    x: 500,
-    y: 600,
-    width: 800,
-    height: 600,
+    x: displays[1].bounds.x + 50,
+    y: displays[1].bounds.y + 50,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
@@ -40,23 +40,23 @@ function createWindows() {
   });
 
   win1.loadFile('src/index.html');
-  win1.webContents.openDevTools();
+  //win1.webContents.openDevTools();
 
   // Create second window on the second display
   win2 = new BrowserWindow({
-    x: 500,
-    y: 800,
-    width: 800,
-    height: 600,
+    x: displays[0].bounds.x + 50,
+    y: displays[0].bounds.y + 50,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   });
   win2.loadFile('src/finish.html');
-  win2.webContents.openDevTools();
+  //win2.webContents.openDevTools();
 
   
-  console.log('win1', win1.webContents.id);
+  // console.log('win1', win1.webContents.id);
 
   ipcMain.on('finish', (event, ...args) => {
     win2.webContents.send('finish', args);

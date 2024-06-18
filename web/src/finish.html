@@ -3,15 +3,52 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Hello World!</title>
-  <link rel="stylesheet" href="index.css" />
+  <title>Finish </title>
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/finish.css" />
+  <link rel="stylesheet" href="https://use.typekit.net/iwr3oew.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
-    <h1>Second Window</h1>
-  <p class="distance-output"></p>
-  <!-- <div id="data-display"></div> -->
+  <nav>
+    <img src="./assets/ScapinoBallet_Logo-zwart copy.png" alt="QR-code" class="logo-nav"></img>
+  </nav>
+  <div class="finish">
 
+    <div class="info">
+      <h1>Win duo tickets!</h1>
+      <ol>
+        <li>Scan the QR-code</li>
+        <li>Share your artwork on instagram</li>
+        <li>Use our hashtag #JoinTheMovement</li>
+      </ol>
+      <div class="qr">
+        <img src="./assets/adobe-express-qr-code.png" alt="QR-code" class="qr-code"></img>
+        <ul class="qr-info">
+          <li class="qr-steps step1">Share it with the world</li>
+          <li class="qr-steps step2">Save it to your device</li>
+          <li class="qr-steps step3">Discover the meaning behind your artwork</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="distance-output"></p>
+    <div class="blob">
+      <p class="tag"><span>#JoinThe</span><span class="tag-end">Movement</span></p>
+      <div class="blob-artwork">
+        <p class="tag1">tag1</p> <!--Blue = "Precise"; Yellow = "Freestyle"-->
+        <canvas class="blob__image drawing-surface" width="300" height="300"></canvas>
+        <p class="tag2">tag2</p> <!--Purple = "Fluent"; Pink = "Slow pased"-->
+      </div>
+      <!--<p>the brighter result, the more fittable results about it</p>-->
+      <img src="./assets/ScapinoBallet_Logo-zwart copy.png" alt="QR-code" class="logo"></img>
+    </div>
+  </div>
 
   <script type="module" src="finish.js"></script>
 </body>

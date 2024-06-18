@@ -1,7 +1,11 @@
 const hasWebSerial = "serial" in navigator;
-//import * as path from 'path';
-// import { ipcRenderer as ipc } from '../node_modules/@electron';
+import Player from './modules/player.js';
+import { displaySupportedState, displayConnectionState, toggleDevVisibility} from './modules/ui.js';
 let isConnected = false;
+
+
+///-------
+///-----
 
 const $notSupported = document.getElementById("not-supported");
 const $supported = document.getElementById("supported");
@@ -15,6 +19,11 @@ const $distanceOutput = document.querySelector(".distance-output");
 const $finishButton = document.querySelector(".finish-button");
 const $mainAudio = document.querySelector(".main-audio");
 const $shockAudio = document.querySelector(".shock-audio");
+const $toggleButton = document.querySelector(".toggle-button");
+const $navbarLinks = document.querySelector(".navbar-links");
+
+const $buttonHTP = document.querySelector(".button-htp");
+
 
 const minimumDistanceFinish = 13;
 
@@ -25,16 +34,19 @@ let armDistance;
 let shock;
 let playerId = localStorage.getItem('playerId') ? parseInt(localStorage.getItem('playerId')) : 1;
 let startTime;
-
-//const players = [];
+let playerMin;
+let playerMax;
 
 let connectedArduinoPorts = [];
 
+
 const init = async () => {
-  displaySupportedState();
+   //displaySupportedState();
+  displaySupportedState(hasWebSerial, $notSupported, $supported);
   if (!hasWebSerial) return;
 
-  displayConnectionState();
+   displayConnectionState(isConnected, $notConnected, $connected);
+   //displayConnectionState();
 
   navigator.serial.addEventListener("connect", (e) => {
     const port = e.target;
@@ -54,9 +66,34 @@ const init = async () => {
     console.log("disconnect", port, info);
     connectedArduinoPorts = connectedArduinoPorts.filter((p) => p !== port);
   });
+
   $connectButton.addEventListener("click", handleClickConnect);
+  $buttonHTP.addEventListener("click", showHTPSection);
+
+  //handleClickConnect();
   $finishButton.addEventListener("click", handleFinishGame);
+
+  $toggleButton.addEventListener("click", () => {
+    $navbarLinks.classList.toggle("active")
+  });
+
+  document.addEventListener('keydown', toggleDevVisibility);
 };
+
+const showHTPSection = () => {
+  const instructions = document.querySelector(".instructions");
+  const index = document.querySelector(".index");
+
+  instructions.classList.toggle("hidden");
+  index.classList.toggle("hidden");
+
+  if (!instructions.classList.contains("hidden")) {
+  $buttonHTP.innerHTML = "Back";
+  } else {
+    $buttonHTP.innerHTML = "How to Play";
+  }
+}
+
 
 const isArduinoPort = (port) => {
   const info = port.getInfo();
@@ -73,7 +110,8 @@ const handleClickConnect = async () => {
 
 const connect = async (port) => {
   isConnected = true;
-  displayConnectionState();
+  displayConnectionState(isConnected, $notConnected, $connected);
+  // displayConnectionState();
   await port.open({ baudRate: 9600 });
   while (port.readable) {
     const decoder = new TextDecoderStream();
@@ -109,24 +147,18 @@ const connect = async (port) => {
       })
     );
 
-    const sendStartToArduino = async () => {
-      playerIs = true;
-      console.log("Start game", playerIs);
 
-      await writer.write(
-        JSON.stringify({
-          playerIs: playerIs,
-        })
-      );
-      await writer.write("\n");
+    const handleStartEvent = () => {
+    //console.log("hanldeStartEvent");
+    handleStartGame();
+    //make button disabled
+    // if (playerIs) {
+     $startButton.disabled = true;
+    // };
+    sendStartToArduino(writer);
     };
-    
-    // $startButton.addEventListener("click",handleStartGame);
-    // $startButton.addEventListener("click",sendStartToArduino);
-    $startButton.addEventListener("touchstart",handleStartGame);
-    $startButton.addEventListener("touchstart",sendStartToArduino);
 
-    
+    $startButton.addEventListener("click", handleStartEvent);
 
     try {
       while (true) {
@@ -139,18 +171,6 @@ const connect = async (port) => {
           const parsed = JSON.parse(value);
           //console.log(parsed); //slow
           handleArduinoData(parsed, writer);
-
-            if (parsed.finishDistance < minimumDistanceFinish) {
-            playerIs = false;
-            await writer.write(
-              JSON.stringify({
-                playerIs: playerIs,
-              })
-            );
-
-            handleFinishGame();
-            console.log("Finish game");
-          }
         } catch (error) {
           console.log(error);
         }
@@ -160,41 +180,16 @@ const connect = async (port) => {
     } finally {
       reader.releaseLock();
       writer.releaseLock();
-      //clearInterval(intervalId);
     }
   }
 
   port.addEventListener("disconnect", () => {
     isConnected = false;
     console.log("Disconnected");
-    displayConnectionState();
+    // displayConnectionState();
+    displayConnectionState(isConnected, $notConnected, $connected);
   });
 };
-
-const displaySupportedState = () => {
-  if (hasWebSerial) {
-    $notSupported.style.display = "none";
-    $supported.style.display = "block";
-  } else {
-    $notSupported.style.display = "block";
-    $supported.style.display = "none";
-  }
-};
-
-const displayConnectionState = () => {
-  if (isConnected) {
-    $notConnected.style.display = "none";
-    $connected.style.display = "block";
-  } else {
-    $notConnected.style.display = "block";
-    $connected.style.display = "none";
-  }
-};
-
-let minimumArmDistance = 15;
-
-//const accuracy = [];
-// const playerMinMax = [];
 
 //------local storage and creating player
 
@@ -202,44 +197,51 @@ let currentPlayer = null;
 //$mainAudio.play();
 
 const handleStartGame = () => {
+  //currentPlayer = addPlayerObject(playerId, $responseElement);
     addPlayerObject();
     console.log("Start game");
     startTime = new Date();
+
+
+  playerMin = 10;
+  playerMax = 11;
 }
 
-class Player {
-    constructor(id) {
-        this.id = id;
-        this.minDistance = 0;
-        this.maxDistance = 0;
-        this.time = 0;
-    } 
-
-    setMinDistance(distance) {
-        this.minDistance = distance;
-    }
-
-    setMaxDistance(distance) {
-        this.maxDistance = distance;
-    }
-
-    setTime(time) {
-        this.time = time;
-    }
-};
-
 const addPlayerObject = () => {
-    currentPlayer = new Player(playerId++);
-    localStorage.setItem('playerId', playerId);
-    $responseElement.innerHTML = `
+  currentPlayer = new Player(playerId++);
+  localStorage.setItem('playerId', playerId);
+  $responseElement.innerHTML = `
         Player ID: ${currentPlayer.id}<br>
     `;
 };
 
-let playerMin = 6;
-let playerMax = 10;
+const sendStartToArduino = async (writer) => {
+  console.log(writer);
+  playerIs = true;
+  console.log("Start game", playerIs);
 
-const handleArduinoData = (parsed, writer) => {
+  await writer.write(
+    JSON.stringify({
+      playerIs: playerIs,
+    })
+  );
+  await writer.write("\n");
+};
+
+
+const handleArduinoData =  async (parsed, writer) => {
+
+  if (parsed.finishDistance < minimumDistanceFinish) {
+    playerIs = false;
+    await writer.write(
+      JSON.stringify({
+        playerIs: playerIs,
+      })
+    );
+
+      handleFinishGame();
+      console.log("Finish game");
+    }
     //console.log(parsed);
     finishDistance = parsed.finishDistance;
     presenceDistance = parsed.presenceDistance;
@@ -253,7 +255,7 @@ const handleArduinoData = (parsed, writer) => {
         playerMin = armDistance;
     }
 
-    if (armDistance > playerMax) {
+    if (armDistance > playerMax && armDistance < 25 ) {
         console.log( "new arm distance", armDistance);
         playerMax = armDistance;
     }
@@ -292,7 +294,7 @@ const handleFinishGame = () => {
     }
     const endTime = new Date(); // Record the end time
     const elapsedTime = (endTime - startTime) / 1000;
-
+    $startButton.disabled = false;
     if (currentPlayer) {
         currentPlayer.setTime(elapsedTime);
         currentPlayer.setMinDistance(playerMin);
@@ -314,7 +316,6 @@ const handleFinishGame = () => {
     window.electronAPI.send("finish", message);
     //electronAPI.send('finish-from-win1', data);
 };
-
 
 
 init();
