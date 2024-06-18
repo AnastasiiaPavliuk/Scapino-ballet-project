@@ -1,7 +1,7 @@
 const { app, BrowserWindow, screen, ipcMain } = require('electron');
 const path = require('path');
 
-let win1, win2;
+let win1, win2, bigDisplay, smallDisplay;
 
 function createWindows() {
   const displays = screen.getAllDisplays();
@@ -10,12 +10,23 @@ function createWindows() {
     app.quit();
     return;
   }
+
+  // checks the width of the displays to determine which is the big one
+  if (displays[0].bounds.width > displays[1].bounds.width) {
+    bigDisplay = displays[0];
+    smallDisplay = displays[1];
+  } else {
+    bigDisplay = displays[1];
+    smallDisplay = displays[0];
+  }
+
   
   win1 = new BrowserWindow({
-    x: displays[1].bounds.x + 50,
-    y: displays[1].bounds.y + 50,
-    width: 1920,
-    height: 1080,
+    x: smallDisplay.bounds.x,
+    y: smallDisplay.bounds.y,
+    width: smallDisplay.bounds.width,
+    height: smallDisplay.bounds.height,
+    fullscreen: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
@@ -40,20 +51,21 @@ function createWindows() {
   });
 
   win1.loadFile('src/index.html');
-  //win1.webContents.openDevTools();
+  // win1.webContents.openDevTools();
 
   // Create second window on the second display
   win2 = new BrowserWindow({
-    x: displays[0].bounds.x + 50,
-    y: displays[0].bounds.y + 50,
-    width: 1920,
-    height: 1080,
+    x: bigDisplay.bounds.x,
+    y: bigDisplay.bounds.y,
+    width: bigDisplay.bounds.width,
+    height: bigDisplay.bounds.height,
+    fullscreen: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   });
   win2.loadFile('src/finish.html');
-  //win2.webContents.openDevTools();
+  // win2.webContents.openDevTools();
 
   
   // console.log('win1', win1.webContents.id);

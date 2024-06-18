@@ -17,7 +17,7 @@
     rel="stylesheet">
 </head>
 
-<body>
+<body class="start-screen">
   <div class="develop hidden">
     <div id="app">
       <div id="not-supported">
@@ -44,7 +44,7 @@
   </div>
   <main>
     <div class="audio">
-      <audio class="main-audio" loop>
+      <audio class="main-audio" loop autoplay>
         <source src="./assets/music-scapino.mp3" type="audio/mp3">
         Your browser does not support the audio element.
       </audio>
@@ -54,7 +54,7 @@
       </audio>
     </div>
 
-    <section class="start-screen">
+    <section>
 
       <nav class="navbar">
         <img src="./assets/ScapinoBallet_Logo-zwart.png" alt="Scapino logo" class="logo">
@@ -125,13 +125,13 @@
 
       </section>
 
-      <div class="buttons">
+      <div class="buttons-wrap">
         <!-- <a href="./instruction.html" class="button button-white">How to play</a> -->
-        <button class="button button-white button-htp">How To Play</button>
-      <div class="button-container">
-        <button class="button button-purple start-button">I'm ready</button>
         <p class="disabled-text">You cannot enter when another player is in.</p>
-      </div>
+        <div class="buttons">
+          <button class="button button-white button-htp">How To Play</button>
+          <button class="button button-purple start-button">I'm ready</button>
+        </div>
       </div>
 
   </main>
