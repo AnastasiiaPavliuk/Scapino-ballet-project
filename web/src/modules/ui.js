@@ -19,7 +19,7 @@ export const displayConnectionState = (isConnected, $notConnected, $connected) =
 };
 
 export const toggleDevVisibility = (e) => {
-    if (e.key === 'h') {
+    if (e.key === 'h' || e.key === 'H') {
         document.querySelector(".develop").classList.toggle("hidden");
     }
 

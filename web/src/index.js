@@ -25,7 +25,7 @@ const $navbarLinks = document.querySelector(".navbar-links");
 const $buttonHTP = document.querySelector(".button-htp");
 
 
-const minimumDistanceFinish = 13;
+const minimumDistanceFinish = 30;
 
 let playerIs = false;
 let finishDistance;
@@ -261,16 +261,8 @@ const handleArduinoData =  async (parsed, writer) => {
     }
 
     if (shock && playerIs) {
-
-        // // maybe reverse audio 
-
-        // play it for 1 sec
-        // $mainAudio.play();
-
         $mainAudio.volume = 0.7;
-
         $shockAudio.play();
-
         $shockAudio.onended = function() {
             $mainAudio.volume = 1;
         }

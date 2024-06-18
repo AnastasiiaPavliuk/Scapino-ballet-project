@@ -137,7 +137,7 @@ const calculateHSL = () => {
 // Function to calculate color based on playerTime
 const colorPlayerTime = () => {
     // if (playerTime >= 20 && playerTime <= 60) {
-    if (playerTime >= 20) {
+    if (playerTime >= 4) {
         // Pink hue
         const lightnessPlayerTime = 60;
         setTagInnerHtml("slow pased");
