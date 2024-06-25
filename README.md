@@ -27,7 +27,3 @@ Locate and open the Choreo-Graphica app in your applications list or start menu.
 ## Arduino circut 
 
 ![circut](https://github.com/AnastasiiaPavliuk/Rotrijk/assets/133123399/439029f5-72bb-4e01-b614-1be43ad94db5)
-  synth.triggerAttackRelease("C2", 0.4);
-});
-
-```
