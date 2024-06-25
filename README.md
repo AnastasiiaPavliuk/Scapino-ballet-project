@@ -2,6 +2,9 @@
 
 Welcome to Choreo-Graphica project! This project is designed to run with Arduino and Electron.js to create interactive experiences.
 
+<img src="https://github.com/AnastasiiaPavliuk/Scapino-ballet-project/assets/133123399/4cd21474-9822-47e2-8778-a6904f0a6b39" alt="process of creating frames " height="300"/>
+<img src="https://github.com/AnastasiiaPavliuk/Scapino-ballet-project/assets/133123399/a72b0527-97e5-4af0-909f-86c039cf439e" alt="installation concept" height="300"/>
+
 ## Installation Guide for client
 
 Follow these steps to set up and run the Choreo-Graphica app:
